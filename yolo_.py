@@ -8,7 +8,7 @@ width, height = 720,480
 vid.set(cv2.CAP_PROP_FRAME_WIDTH,width)
 vid.set(cv2.CAP_PROP_FRAME_HEIGHT,height)
 
-webcam_running= False
+webcam_running= None
 
 
 class root(customtkinter.CTk):
@@ -43,44 +43,46 @@ class root(customtkinter.CTk):
 
     # turn on webcam
     def webcam_on(self):
-        global webcam_running, vid
-        
-        if not webcam_running: #only turn on if webcam if off
-            webcam_running= True
-            print("Webcam on")
-
-        
-
-
+        global webcam_running
+        webcam_running=True
         #capture video fram by frame
         # try to get the first frame
     
         ret, frame=vid.read() # read a frame from the webcam
         print("webcam ruuning", webcam_running)
 
-        
+        if not ret:
+            print("webcam not on")
 
-        #convert image from one colour space to another
-        opencv_image= cv2.cvtColor(frame, cv2.COLOR_BGR2RGBA)
+        else:
 
-        #capture the latest frame and tansform to image
-        captured_image= Image.fromarray(opencv_image)
+            #convert image from one colour space to another
+            opencv_image= cv2.cvtColor(frame, cv2.COLOR_BGR2RGBA)
 
-        #convert captured image to photoimage
-        self.photo_image= customtkinter.CTkImage(light_image=captured_image,size=(width,height))
+            #capture the latest frame and tansform to image
+            captured_image= Image.fromarray(opencv_image)
 
-        #displaying the photoimage in the label
-        self.video_frame.photo_image=self.photo_image
+            #convert captured image to photoimage
+            self.photo_image= customtkinter.CTkImage(light_image=captured_image,size=(width,height))
 
-        #configue image in the label            
-        self.video_label.configure(image=self.photo_image)
+            #displaying the photoimage in the label
+            self.video_frame.photo_image=self.photo_image
 
-        #repeat the same process every 10 seconds
-        #self.video_label.after(10, self.webcam_on)
+            #configue image in the label            
+            self.video_label.configure(image=self.photo_image)
 
-        # handle potential keyboard interrupt 
-        if cv2.waitKey(10) == ord('q'):
-            break
+            #repeat the same process every 10 seconds
+            if webcam_running:
+                self.video_label.after(10, self.webcam_on)
+
+            else:
+                self.video_label.after_cancel(self.webcam_on)
+                webcam_running=False
+
+            # handle potential keyboard interrupt 
+           # if cv2.waitKey(10) == ord('q'):
+
+                
 
 
     # turn off webcam      qq
@@ -92,7 +94,7 @@ class root(customtkinter.CTk):
             webcam_running= False
 
         #stop scheduled frame update
-        self.video_label.after_cancel(self.webcam_on)
+        #self.video_label.after_cancel(self.webcam_on)
 
         # release the webcam recourses
         #if vid.isOpened():
