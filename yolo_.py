@@ -4,10 +4,6 @@ import cv2
 from PIL import Image, ImageTk
 
 
-
-#webcam_running= None
-
-
 class root(customtkinter.CTk):
 
     def __init__(self):
@@ -18,6 +14,8 @@ class root(customtkinter.CTk):
         self.webcam_running=True
 
         self.title("Webcam_yolo")
+
+        customtkinter.set_appearance_mode("dark")
 
         #add video frame
         self.video_frame=customtkinter.CTkFrame(self,border_width=1,width=self.width, height=self.height)
@@ -32,14 +30,21 @@ class root(customtkinter.CTk):
         self.video_label.grid(row=0,column=0)
 
         # turn on button
-        self.button = customtkinter.CTkButton(self.webcam_button_frame,text="Turn on", command=self.webcam_on)
-        self.button.grid(row=1, column=0,padx=10, pady=(10),sticky="w")
+        self.button_on = customtkinter.CTkButton(self.webcam_button_frame,text="Turn on", command=self.webcam_on)
+        self.button_on.grid(row=1, column=0,padx=10, pady=(10),sticky="w")
 
         #turn off button
-        self.button = customtkinter.CTkButton(self.webcam_button_frame, text="Turn off", command=self.webcam_off)
-        self.button.grid(row=1, column=1,padx=(0,10), pady=(10), sticky="w")
+        self.button_off = customtkinter.CTkButton(self.webcam_button_frame, text="Turn off", command=self.webcam_off)
+        self.button_off.grid(row=1, column=1,padx=(0,10), pady=(10), sticky="w")
+
+        #turn on object detection
+
+        #turn off object detection
+
+        #set score entry
 
 
+    #############################################################################functions
 
     def initialise_webcam(self):
         self.vid=cv2.VideoCapture(0)
@@ -49,6 +54,9 @@ class root(customtkinter.CTk):
 
     # turn on webcam
     def webcam_on(self):
+
+        self.button_off.configure(state="normal")
+        self.button_on.configure(state="disabled")
         
         #capture video fram by frame
         # try to get the first frame
@@ -58,14 +66,10 @@ class root(customtkinter.CTk):
 
         if not self.ret:
             self.initialise_webcam()
-            print("webcam again")
+            print("webcam on again")
             self.webcam_running=True
             self.ret, self.frame=self.vid.read()
-            
-
         
-        #self.webcam_running=True
-
         #convert image from one colour space to another
         self.opencv_image= cv2.cvtColor(self.frame, cv2.COLOR_BGR2RGBA)
 
@@ -91,18 +95,23 @@ class root(customtkinter.CTk):
             print("in else loop")
             #self.after_id=None
             self.vid.release()
-        # handle potential keyboard interrupt 
-        # if cv2.waitKey(10) == ord('q'):
 
-                
-
-
-    # turn off webcam      qq
+        '''# handle potential keyboard interrupt 
+        if cv2.waitKey(10) == ord(27):
+            self.vid.release()
+'''
+    
+    # turn off webcam
     def webcam_off(self):
+
+        
         
         
         if self.webcam_running: # only turn off if webcam is on
             self.webcam_running= False
+
+        self.button_off.configure(state="disabled")
+        self.button_on.configure(state="normal")
 
         #stop scheduled frame update
         #self.video_label.after_cancel(self.webcam_on)
