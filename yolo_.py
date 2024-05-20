@@ -4,6 +4,7 @@ import cv2
 from PIL import Image, ImageTk
 import time
 
+
 start_time=time.time()
 class root(customtkinter.CTk):
 
@@ -58,7 +59,7 @@ class root(customtkinter.CTk):
         self.vid.set(cv2.CAP_PROP_FRAME_WIDTH, self.width)
         self.vid.set(cv2.CAP_PROP_FRAME_HEIGHT, self.height)
 
-
+    
     # turn on webcam
     def webcam_on(self):
 
@@ -107,11 +108,7 @@ class root(customtkinter.CTk):
             self.button_on.configure(state="normal")
             self.vid.release()
 
-        '''# handle potential keyboard interrupt 
-        if cv2.waitKey(10) == ord(27):
-            self.vid.release()
-'''
-
+    
     # turn off webcam
     def webcam_off(self):     
 
@@ -119,6 +116,10 @@ class root(customtkinter.CTk):
             self.webcam_running = False
 
         print("in webcam_off now", self.webcam_running)
+    
+
+    
+
 
 
 app = root()
