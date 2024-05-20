@@ -10,7 +10,13 @@ class root(customtkinter.CTk):
     def __init__(self):
         super().__init__()
 
-        self.initialise_webcam()
+        self.initialise= True #param to initialise camera one time only
+
+        # initialise webcam only one time
+        if self.initialise:
+            self.initialise_webcam()
+
+        self.initialise=False
 
         self.webcam_running = True
 
@@ -56,6 +62,8 @@ class root(customtkinter.CTk):
     # turn on webcam
     def webcam_on(self):
 
+        #self.initialise=True
+
         self.button_off.configure(state="normal")
         self.button_on.configure(state="disabled")
 
@@ -95,6 +103,8 @@ class root(customtkinter.CTk):
             #self.webcam_running=False
             print("in else loop")
             #self.after_id=None
+            self.button_off.configure(state="disabled")
+            self.button_on.configure(state="normal")
             self.vid.release()
 
         '''# handle potential keyboard interrupt 
@@ -103,21 +113,11 @@ class root(customtkinter.CTk):
 '''
 
     # turn off webcam
-    def webcam_off(self):
+    def webcam_off(self):     
 
         if self.webcam_running:  # only turn off if webcam is on
             self.webcam_running = False
 
-        self.button_off.configure(state="disabled")
-        self.button_on.configure(state="normal")
-
-        #stop scheduled frame update
-        #self.video_label.after_cancel(self.webcam_on)
-
-        # release the webcam recourses
-        #if vid.isOpened():
-        #vid.release()
-        #webcam_running=False
         print("in webcam_off now", self.webcam_running)
 
 
