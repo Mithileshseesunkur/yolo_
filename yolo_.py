@@ -4,6 +4,8 @@ import cv2
 from PIL import Image, ImageTk
 import time
 
+from ultralytics import YOLO
+
 
 start_time=time.time()
 class root(customtkinter.CTk):
@@ -59,6 +61,8 @@ class root(customtkinter.CTk):
         self.vid.set(cv2.CAP_PROP_FRAME_WIDTH, self.width)
         self.vid.set(cv2.CAP_PROP_FRAME_HEIGHT, self.height)
 
+        self.model=YOLO('yolov8m.pt')
+
     
     # turn on webcam
     def webcam_on(self):
@@ -73,13 +77,14 @@ class root(customtkinter.CTk):
         #self.initialise_webcam()
         self.ret, self.frame = self.vid.read()  # read a frame from the webcam
         print("webcam running", self.webcam_running)
+        
 
         if not self.ret:
             self.initialise_webcam()
             print("webcam on again")
             self.webcam_running = True
             self.ret, self.frame = self.vid.read()
-
+        
         #convert image from one colour space to another
         self.opencv_image = cv2.cvtColor(self.frame, cv2.COLOR_BGR2RGBA)
 
@@ -91,13 +96,17 @@ class root(customtkinter.CTk):
 
         #displaying the photoimage in the label
         self.video_frame.photo_image = self.photo_image
+        self.result=self.model(self.frame)
 
         #configue image in the label            
         self.video_label.configure(image=self.photo_image)
+        
+        
 
-        #repeat the same process every 10 seconds
+        #repeat the same process every 10 mseconds
         if self.webcam_running:
-            self.video_label.after(10, self.webcam_on)
+            self.video_label.after(1, self.webcam_on)
+            
 
         else:
             #self.video_label.after_cancel(self.webcam_on)
