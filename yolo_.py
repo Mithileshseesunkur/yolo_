@@ -3,6 +3,7 @@ from tkinter import *
 import cv2
 from PIL import Image, ImageTk
 import time
+import threading
 
 from ultralytics import YOLO
 
@@ -60,14 +61,22 @@ class root(customtkinter.CTk):
         self.width, self.height = 720, 480
         self.vid.set(cv2.CAP_PROP_FRAME_WIDTH, self.width)
         self.vid.set(cv2.CAP_PROP_FRAME_HEIGHT, self.height)
-
-        self.model=YOLO('yolov8m.pt')
+    
 
     
-    # turn on webcam
-    def webcam_on(self):
 
-        #self.initialise=True
+    def yolo_detection(self):
+
+        
+        #initialise yolo model
+        self.model=YOLO('yolov8m.pt')
+
+        #self.model=YOLO('yolov8m.pt')
+        self.result=self.model(self.frame)
+
+    
+    # webcam capturing image
+    def webcam_capture(self):
 
         self.button_off.configure(state="normal")
         self.button_on.configure(state="disabled")
@@ -96,18 +105,15 @@ class root(customtkinter.CTk):
 
         #displaying the photoimage in the label
         self.video_frame.photo_image = self.photo_image
-        self.result=self.model(self.frame)
 
         #configue image in the label            
         self.video_label.configure(image=self.photo_image)
         
-        
-
-        #repeat the same process every 10 mseconds
+        #repeat the same process every 1 mseconds
         if self.webcam_running:
-            self.video_label.after(1, self.webcam_on)
-            
 
+            self.video_label.after(1, self.webcam_on)
+        
         else:
             #self.video_label.after_cancel(self.webcam_on)
             #self.webcam_running=False
@@ -116,13 +122,27 @@ class root(customtkinter.CTk):
             self.button_off.configure(state="disabled")
             self.button_on.configure(state="normal")
             self.vid.release()
+           
 
-    
+        
+    def webcam_on(self):
+
+        self.capture_thread=threading.Thread(target=self.webcam_capture)
+
+        #deploying yolo in another thread       
+        self.yolo_thread=threading.Thread(target=self.yolo_detection)
+        self.yolo_thread.start()
+        self.capture_thread.start()
+
+
     # turn off webcam
     def webcam_off(self):     
 
         if self.webcam_running:  # only turn off if webcam is on
             self.webcam_running = False
+
+        self.yolo_thread.join()
+        self.capture_thread.join()
 
         print("in webcam_off now", self.webcam_running)
     
